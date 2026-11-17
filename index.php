@@ -102,7 +102,7 @@
 
             // check if ip hide
             const isIPHidden = serverStatuses.length > 0 &&
-                serverStatuses[0].host !== serverStatuses[0].display_host;
+                serverStatuses[0].host === null;
 
             settingsInfo.textContent = isIPHidden
                 ? 'IP addresses are hidden'
@@ -115,7 +115,9 @@
 
                 const serverCard = document.createElement('div');
                 serverCard.className = `server-card ${isUp ? '' : 'down'}`;
-                const addressDisplay = `${server.display_host}:${server.port}`;
+                const addressDisplay = server.display_host
+                    ? `${server.display_host}:${server.port}`
+                    : `Port ${server.port}`;
 
                 serverCard.innerHTML = `
                     <div class="server-info">
@@ -135,7 +137,10 @@
             document.getElementById('total-count').textContent = serverStatuses.length;
             document.getElementById('up-count').textContent = upCount;
             document.getElementById('down-count').textContent = downCount;
-            document.getElementById('update-time').textContent = new Date().toLocaleTimeString();
+            document.getElementById('update-time').textContent =
+                serverStatuses.length && serverStatuses[0].last_check
+                    ? serverStatuses[0].last_check
+                    : new Date().toLocaleTimeString();
         }
         document.addEventListener('DOMContentLoaded', initializeDashboard);
     </script>
