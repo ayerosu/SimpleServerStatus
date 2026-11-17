@@ -31,7 +31,19 @@ function getServerStatuses($servers, $hide_ip_addresses)
     if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $cache_time) {
         $cached_data = file_get_contents($cache_file);
         if ($cached_data !== false) {
-            return json_decode($cached_data, true);
+            $cached_servers = json_decode($cached_data, true);
+            if (is_array($cached_servers)) {
+                $has_host = false;
+                foreach ($cached_servers as $cached_server) {
+                    if (!empty($cached_server['host'])) {
+                        $has_host = true;
+                        break;
+                    }
+                }
+                if (!$hide_ip_addresses || !$has_host) {
+                    return $cached_servers;
+                }
+            }
         }
     }
 
@@ -49,7 +61,7 @@ function getServerStatuses($servers, $hide_ip_addresses)
 
         $results[] = [
             'name' => $server['name'],
-            'host' => $server['host'],
+            'host' => $hide_ip_addresses ? null : $server['host'],
             'display_host' => $display_host,
             'port' => $server['port'],
             'status' => $status,
